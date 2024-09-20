@@ -1,0 +1,14 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace EducationPortal.DtoLayer.ParticipantDto
+{
+    public class CreateParticipantDto
+    {
+        public string Name { get; set; }
+
+    }
+}
