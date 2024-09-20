@@ -12,6 +12,5 @@ namespace EducationPortal.DtoLayer.InstructorDto
         public int Id { get; set; }
         public string Name { get; set; }
         public bool IsInternal { get; set; }
-        public ICollection<ResultEducationDto> Educations { get; set; }
     }
 }

@@ -20,5 +20,6 @@ namespace EducationPortal.EntityLayer.Entities
         public decimal Cost { get; set; }
         public int DurationInDays { get; set; }
         public ICollection<Content> Contents { get; set; }
+        //public ICollection<EducationParticipant> EducationParticipants { get; set; }
     }
 }

@@ -1,17 +1,32 @@
+using EducationPortal.BusinessLayer.Abstract;
+using EducationPortal.BusinessLayer.Concrete;
+using EducationPortal.DataAccessLayer.Abstract;
 using EducationPortal.DataAccessLayer.Concrete;
+using EducationPortal.DataAccessLayer.EntityFramework;
 using EducationPortal.EntityLayer.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Reflection;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 
+
 builder.Services.AddDbContext<EducationPortalContext>(options =>
-          options.UseSqlServer(builder.Configuration.GetConnectionString("EducationPortalContext")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("EducationPortalDbContext")));
+
+
+
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly()); //automapper
+
+
+builder.Services.AddScoped<ICategoryService, CategoryManager>();
+builder.Services.AddScoped<ICategoryDal, EfCategoryDal>();
+
 
 // Identity Services
 
@@ -48,9 +63,9 @@ builder.Services.AddAuthentication(options =>
           ValidateAudience = true,
           ValidateLifetime = true,
           ValidateIssuerSigningKey = true,
-          ValidIssuer = builder.Configuration["Jwt:Issuer"], 
-          ValidAudience = builder.Configuration["Jwt:Audience"], 
-          IssuerSigningKey = new SymmetricSecurityKey(key) 
+          ValidIssuer = builder.Configuration["Jwt:Issuer"],
+          ValidAudience = builder.Configuration["Jwt:Audience"],
+          IssuerSigningKey = new SymmetricSecurityKey(key)
       };
   });
 

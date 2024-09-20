@@ -10,7 +10,7 @@ namespace EducationPortal.EntityLayer.Entities
     public class Content
     {
         public int Id { get; set; }
-        public string FilePath { get; set; }  // İçerik dosyasının yolu
+        public string FilePath { get; set; } 
         public ContentType Type { get; set; }
         public int EducationId { get; set; }
         public Education Education { get; set; }

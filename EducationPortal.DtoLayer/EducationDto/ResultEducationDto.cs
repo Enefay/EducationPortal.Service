@@ -17,6 +17,6 @@ namespace EducationPortal.DtoLayer.EducationDto
         public int Quota { get; set; }
         public decimal Cost { get; set; }
         public int DurationInDays { get; set; }
-        public ICollection<ResultContentDto> Contents { get; set; }
+        public ICollection<GetContentDto> Contents { get; set; }
     }
 }

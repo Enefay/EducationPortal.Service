@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EducationPortal.DtoLayer.CategoryDto
 {
-    public class CreateEducationDto
+    public class CreateCategoryDto
     {
         public string Name { get; set; }
     }
