@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EducationPortal.DtoLayer.EducationParticipantDto
 {
-    public class ResultEducationParticipantDto
+    public class ResultEducationUserDto
     {
         public int Id { get; set; }
         public int EducationId { get; set; }

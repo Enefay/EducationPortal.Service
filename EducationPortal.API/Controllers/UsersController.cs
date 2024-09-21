@@ -9,13 +9,15 @@ namespace EducationPortal.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(Policy = "RequireAdminRole")] // Yalnızca adminlerin erişimi 
-    public class UserController : ControllerBase
+    [Authorize(Policy = "RequireAdminRole")]
+    // Yalnızca adminlerin erişimi 
+    // Admin ve öğretmen oluşturma alanı
+    public class UsersController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<AppRole> _roleManager;
 
-        public UserController(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager)
+        public UsersController(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -24,6 +26,7 @@ namespace EducationPortal.API.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateUser(CreateUserDto createUserDto)
         {
+
             var user = new AppUser
             {
                 UserName = createUserDto.Email,
@@ -44,13 +47,13 @@ namespace EducationPortal.API.Controllers
                 await _userManager.AddToRoleAsync(user, createUserDto.RoleName);
             }
 
-            return Ok(new { message = "User created successfully!" });
+            return Ok(new { message = createUserDto.RoleName + " başarıyla oluşturuldu." });
         }
 
         [HttpPut("update")]
         public async Task<IActionResult> UpdateUser(UpdateUserDto updateUserDto)
         {
-            var user = await _userManager.FindByIdAsync(updateUserDto.Id);
+            var user = await _userManager.FindByIdAsync(updateUserDto.Id.ToString());
             if (user == null)
             {
                 return NotFound();
@@ -60,21 +63,21 @@ namespace EducationPortal.API.Controllers
             user.Name = updateUserDto.Name;
             user.Surname = updateUserDto.Surname;
 
-            // Şifre güncelleme
-            if (!string.IsNullOrEmpty(updateUserDto.Password))
-            {
-                var removePasswordResult = await _userManager.RemovePasswordAsync(user);
-                if (!removePasswordResult.Succeeded)
-                {
-                    return BadRequest(removePasswordResult.Errors);
-                }
+            //// Şifre güncelleme
+            //if (!string.IsNullOrEmpty(updateUserDto.Password))
+            //{
+            //    var removePasswordResult = await _userManager.RemovePasswordAsync(user);
+            //    if (!removePasswordResult.Succeeded)
+            //    {
+            //        return BadRequest(removePasswordResult.Errors);
+            //    }
 
-                var addPasswordResult = await _userManager.AddPasswordAsync(user, updateUserDto.Password);
-                if (!addPasswordResult.Succeeded)
-                {
-                    return BadRequest(addPasswordResult.Errors);
-                }
-            }
+            //    var addPasswordResult = await _userManager.AddPasswordAsync(user, updateUserDto.Password);
+            //    if (!addPasswordResult.Succeeded)
+            //    {
+            //        return BadRequest(addPasswordResult.Errors);
+            //    }
+            //}
 
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
@@ -90,10 +93,12 @@ namespace EducationPortal.API.Controllers
                 await _userManager.AddToRoleAsync(user, updateUserDto.RoleName);
             }
 
-            return Ok(new { message = "User updated successfully!" });
+            return Ok(new { message = updateUserDto.RoleName + " başarıyla güncellendi." });
+
         }
 
-        [HttpDelete("delete/{id}")]
+
+        [HttpDelete("delete/{id}")] //todo ilgili eğitimcinin bağlı olduğu eğitimler olabilir. Hata mesajı gösterilmeli.
         public async Task<IActionResult> DeleteUser(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -108,7 +113,7 @@ namespace EducationPortal.API.Controllers
                 return BadRequest(result.Errors);
             }
 
-            return Ok(new { message = "User deleted successfully!" });
+            return Ok(new { message = "Kullanıcı başarıyla silindi" });
         }
 
         [HttpGet("get/{id}")]
@@ -119,34 +124,57 @@ namespace EducationPortal.API.Controllers
             {
                 return NotFound();
             }
+            var roles = await _userManager.GetRolesAsync(user);
+            var rolesString = string.Join(", ", roles);
 
+            if (rolesString == "Student")
+            {
+                return BadRequest("Sadece personellere erişebilirsiniz.");
+            }
             return Ok(new
             {
                 user.Id,
                 user.Email,
                 user.Name,
-                user.Surname
+                user.Surname,
+                RoleName = rolesString
             });
         }
 
         [HttpGet("list")]
         public async Task<IActionResult> GetUsers()
         {
-            var users = _userManager.Users; // Tüm kullanıcıları al
-
+            var userId = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+            if (userId == null)
+            {
+                return Unauthorized("Kullanıcı bilgisi alınamadı.");
+            }
+            var users = _userManager.Users.Where(x=>x.Id.ToString() != userId);
             var userList = new List<object>();
+
+           
             foreach (var user in users)
             {
-                userList.Add(new
+                var roles = await _userManager.GetRolesAsync(user);
+                var rolesString = string.Join(", ", roles); 
+
+                if (rolesString != "Student")
                 {
-                    user.Id,
-                    user.Email,
-                    user.Name,
-                    user.Surname
-                });
+                    userList.Add(new
+                    {
+                        user.Id,
+                        user.Email,
+                        user.Name,
+                        user.Surname,
+                        Roles = rolesString
+                    });
+                }
+             
             }
 
             return Ok(userList);
         }
+
+
     }
 }

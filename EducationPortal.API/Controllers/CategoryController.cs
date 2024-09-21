@@ -2,6 +2,7 @@
 using EducationPortal.BusinessLayer.Abstract;
 using EducationPortal.DtoLayer.CategoryDto;
 using EducationPortal.EntityLayer.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,7 @@ namespace EducationPortal.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = "RequireAdminRole")]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
@@ -22,6 +24,10 @@ namespace EducationPortal.API.Controllers
         public IActionResult CategoryList()
         {
             var value = _mapper.Map<List<ResultCategoryDto>>(_categoryService.TGetListAll());
+            if (value.Count == 0)
+            {
+                return BadRequest(new { message = "Herhangi bir kategori bulunamadı." });
+            }
             return Ok(value);
         }
 

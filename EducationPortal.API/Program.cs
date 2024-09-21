@@ -1,9 +1,11 @@
+using EducationPortal.API.Validators.EducationValidators;
 using EducationPortal.BusinessLayer.Abstract;
 using EducationPortal.BusinessLayer.Concrete;
 using EducationPortal.DataAccessLayer.Abstract;
 using EducationPortal.DataAccessLayer.Concrete;
 using EducationPortal.DataAccessLayer.EntityFramework;
 using EducationPortal.EntityLayer.Entities;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +28,9 @@ builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly()); //automapper
 
 builder.Services.AddScoped<ICategoryService, CategoryManager>();
 builder.Services.AddScoped<ICategoryDal, EfCategoryDal>();
+builder.Services.AddScoped<IEducationService, EducationManager>();
+builder.Services.AddScoped<IEducationDal, EfEducationDal>();
+
 
 
 // Identity Services
@@ -69,7 +74,21 @@ builder.Services.AddAuthentication(options =>
       };
   });
 
-builder.Services.AddControllers();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder => builder.WithOrigins("http://localhost:3000") 
+                          .AllowAnyMethod()
+                          .AllowAnyHeader());
+});
+
+
+builder.Services.AddControllers()
+    .AddFluentValidation(fv =>
+    {
+        fv.RegisterValidatorsFromAssemblyContaining<CreateEducationDtoValidator>();
+        fv.RegisterValidatorsFromAssemblyContaining<UpdateEducationDtoValidator>();
+    });
 
 builder.Services.AddAuthorization(options =>
 {
@@ -84,12 +103,20 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Seed roles on startup
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<AppRole>>();
+    await SeedRoles(roleManager); // Rollerin eklenmesini saðlýyoruz
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseCors("AllowSpecificOrigin");
 
 app.UseHttpsRedirection();
 
@@ -100,3 +127,19 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+// SeedRoles metodu
+async Task SeedRoles(RoleManager<AppRole> roleManager)
+{
+    string[] roleNames = { "Admin", "Teacher", "Student" };
+
+    foreach (var roleName in roleNames)
+    {
+        var roleExist = await roleManager.RoleExistsAsync(roleName);
+        if (!roleExist)
+        {
+            await roleManager.CreateAsync(new AppRole { Name = roleName });
+        }
+    }
+}

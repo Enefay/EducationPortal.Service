@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace EducationPortal.DataAccessLayer.EntityFramework
 {
-    public class EfInstructorDal : GenericRepository<Instructor>, IInstructorDal
+    public class EfEducationUserDal : GenericRepository<EducationUser>, IEducationUserDal
     {
-        public EfInstructorDal(EducationPortalContext context) : base(context)
+        public EfEducationUserDal(EducationPortalContext context) : base(context)
         {
         }
     }

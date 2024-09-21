@@ -9,5 +9,9 @@ namespace EducationPortal.BusinessLayer.Abstract
 {
     public interface IEducationService : IGenericService<Education>
     {
+        List<Education> TGetEvaluateEducationList();
+        List<Education> TGetTeacherAllEducationsList(int teacherId);
+        List<Education> TGetStudentAllEducationsList(int studentId);
+
     }
 }

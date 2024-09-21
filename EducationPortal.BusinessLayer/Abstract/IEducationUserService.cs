@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EducationPortal.DataAccessLayer.Abstract
+namespace EducationPortal.BusinessLayer.Abstract
 {
-    public interface IParticipantDal : IGenericDal<Participant>
+    public interface IEducationUserService : IGenericService<EducationUser>
     {
     }
 }

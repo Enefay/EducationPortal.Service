@@ -74,6 +74,9 @@ namespace EducationPortal.DataAccessLayer.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<bool?>("IsInternal")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -194,8 +197,8 @@ namespace EducationPortal.DataAccessLayer.Migrations
                     b.Property<int>("InstructorId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ParticipantId")
-                        .HasColumnType("int");
+                    b.Property<bool?>("IsConfirm")
+                        .HasColumnType("bit");
 
                     b.Property<int>("Quota")
                         .HasColumnType("int");
@@ -210,12 +213,10 @@ namespace EducationPortal.DataAccessLayer.Migrations
 
                     b.HasIndex("InstructorId");
 
-                    b.HasIndex("ParticipantId");
-
                     b.ToTable("Educations");
                 });
 
-            modelBuilder.Entity("EducationPortal.EntityLayer.Entities.EducationParticipant", b =>
+            modelBuilder.Entity("EducationPortal.EntityLayer.Entities.EducationUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -235,59 +236,7 @@ namespace EducationPortal.DataAccessLayer.Migrations
 
                     b.HasIndex("ParticipantId");
 
-                    b.ToTable("EducationParticipants");
-                });
-
-            modelBuilder.Entity("EducationPortal.EntityLayer.Entities.Instructor", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsInternal")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsNew")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Surname")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Instructors");
-                });
-
-            modelBuilder.Entity("EducationPortal.EntityLayer.Entities.Participant", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Participants");
+                    b.ToTable("EducationUsers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -412,30 +361,26 @@ namespace EducationPortal.DataAccessLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("EducationPortal.EntityLayer.Entities.Instructor", "Instructor")
-                        .WithMany("Educations")
+                    b.HasOne("EducationPortal.EntityLayer.Entities.AppUser", "Instructor")
+                        .WithMany()
                         .HasForeignKey("InstructorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("EducationPortal.EntityLayer.Entities.Participant", null)
-                        .WithMany("EnrolledEducations")
-                        .HasForeignKey("ParticipantId");
 
                     b.Navigation("Category");
 
                     b.Navigation("Instructor");
                 });
 
-            modelBuilder.Entity("EducationPortal.EntityLayer.Entities.EducationParticipant", b =>
+            modelBuilder.Entity("EducationPortal.EntityLayer.Entities.EducationUser", b =>
                 {
                     b.HasOne("EducationPortal.EntityLayer.Entities.Education", "Education")
-                        .WithMany()
+                        .WithMany("EducationUsers")
                         .HasForeignKey("EducationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("EducationPortal.EntityLayer.Entities.Participant", "Participant")
+                    b.HasOne("EducationPortal.EntityLayer.Entities.AppUser", "Participant")
                         .WithMany()
                         .HasForeignKey("ParticipantId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -505,16 +450,8 @@ namespace EducationPortal.DataAccessLayer.Migrations
             modelBuilder.Entity("EducationPortal.EntityLayer.Entities.Education", b =>
                 {
                     b.Navigation("Contents");
-                });
 
-            modelBuilder.Entity("EducationPortal.EntityLayer.Entities.Instructor", b =>
-                {
-                    b.Navigation("Educations");
-                });
-
-            modelBuilder.Entity("EducationPortal.EntityLayer.Entities.Participant", b =>
-                {
-                    b.Navigation("EnrolledEducations");
+                    b.Navigation("EducationUsers");
                 });
 #pragma warning restore 612, 618
         }

@@ -34,6 +34,7 @@ namespace EducationPortal.DataAccessLayer.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Surname = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsInternal = table.Column<bool>(type: "bit", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -65,33 +66,6 @@ namespace EducationPortal.DataAccessLayer.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Categories", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Instructors",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsInternal = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Instructors", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Participants",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Participants", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -212,29 +186,23 @@ namespace EducationPortal.DataAccessLayer.Migrations
                     InstructorId = table.Column<int>(type: "int", nullable: false),
                     Quota = table.Column<int>(type: "int", nullable: false),
                     Cost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    DurationInDays = table.Column<int>(type: "int", nullable: false),
-                    ParticipantId = table.Column<int>(type: "int", nullable: true)
+                    DurationInDays = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Educations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Educations_AspNetUsers_InstructorId",
+                        column: x => x.InstructorId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Educations_Categories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Educations_Instructors_InstructorId",
-                        column: x => x.InstructorId,
-                        principalTable: "Instructors",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Educations_Participants_ParticipantId",
-                        column: x => x.ParticipantId,
-                        principalTable: "Participants",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -259,7 +227,7 @@ namespace EducationPortal.DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EducationParticipants",
+                name: "EducationUsers",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -269,19 +237,19 @@ namespace EducationPortal.DataAccessLayer.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EducationParticipants", x => x.Id);
+                    table.PrimaryKey("PK_EducationUsers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_EducationParticipants_Educations_EducationId",
+                        name: "FK_EducationUsers_AspNetUsers_ParticipantId",
+                        column: x => x.ParticipantId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_EducationUsers_Educations_EducationId",
                         column: x => x.EducationId,
                         principalTable: "Educations",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_EducationParticipants_Participants_ParticipantId",
-                        column: x => x.ParticipantId,
-                        principalTable: "Participants",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -329,16 +297,6 @@ namespace EducationPortal.DataAccessLayer.Migrations
                 column: "EducationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EducationParticipants_EducationId",
-                table: "EducationParticipants",
-                column: "EducationId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_EducationParticipants_ParticipantId",
-                table: "EducationParticipants",
-                column: "ParticipantId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Educations_CategoryId",
                 table: "Educations",
                 column: "CategoryId");
@@ -349,8 +307,13 @@ namespace EducationPortal.DataAccessLayer.Migrations
                 column: "InstructorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Educations_ParticipantId",
-                table: "Educations",
+                name: "IX_EducationUsers_EducationId",
+                table: "EducationUsers",
+                column: "EducationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EducationUsers_ParticipantId",
+                table: "EducationUsers",
                 column: "ParticipantId");
         }
 
@@ -376,25 +339,19 @@ namespace EducationPortal.DataAccessLayer.Migrations
                 name: "Contents");
 
             migrationBuilder.DropTable(
-                name: "EducationParticipants");
+                name: "EducationUsers");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
                 name: "Educations");
 
             migrationBuilder.DropTable(
+                name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
                 name: "Categories");
-
-            migrationBuilder.DropTable(
-                name: "Instructors");
-
-            migrationBuilder.DropTable(
-                name: "Participants");
         }
     }
 }

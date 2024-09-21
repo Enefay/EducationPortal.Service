@@ -15,8 +15,8 @@ namespace EducationPortal.DataAccessLayer.Concrete
         public DbSet<Category> Categories { get; set; }
         public DbSet<Content> Contents { get; set; }
         public DbSet<Education> Educations { get; set; }
-        public DbSet<EducationParticipant> EducationParticipants { get; set; }
-        public DbSet<Instructor> Instructors { get; set; }
-        public DbSet<Participant> Participants { get; set; }
+        public DbSet<EducationUser> EducationUsers { get; set; }
+
+
     }
 }

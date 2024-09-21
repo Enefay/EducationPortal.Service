@@ -33,9 +33,24 @@ namespace EducationPortal.BusinessLayer.Concrete
             return _educationDal.GetByID(id);
         }
 
+        public List<Education> TGetEvaluateEducationList()
+        {
+           return _educationDal.GetEvaluateEducationList();
+        }
+
         public List<Education> TGetListAll()
         {
            return _educationDal.GetListAll();
+        }
+
+        public List<Education> TGetStudentAllEducationsList(int studentId)
+        {
+            return _educationDal.GetStudentAllEducationsList(studentId);
+        }
+
+        public List<Education> TGetTeacherAllEducationsList(int teacherId)
+        {
+            return _educationDal.GetTeacherAllEducationsList(teacherId);
         }
 
         public void TUpdate(Education entity)
