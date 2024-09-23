@@ -38,6 +38,11 @@ namespace EducationPortal.BusinessLayer.Concrete
             return _educationUserDal.GetListAll();
         }
 
+        public EducationUser TIsSaveEducation(int educationId, int participantId)
+        {
+            return _educationUserDal.IsSaveEducation(educationId, participantId);
+        }
+
         public void TUpdate(EducationUser entity)
         {
             _educationUserDal.Update(entity);

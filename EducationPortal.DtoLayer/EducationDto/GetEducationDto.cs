@@ -1,4 +1,6 @@
-﻿using EducationPortal.DtoLayer.ContentDto;
+﻿using EducationPortal.DtoLayer.CategoryDto;
+using EducationPortal.DtoLayer.ContentDto;
+using EducationPortal.DtoLayer.EducationParticipantDto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +15,7 @@ namespace EducationPortal.DtoLayer.EducationDto
         public string Title { get; set; }
         public string Description { get; set; }
         public int CategoryId { get; set; }
+        public GetCategoryDto Category { get; set; }
         public bool IsConfirm { get; set; }
 
         public int InstructorId { get; set; }

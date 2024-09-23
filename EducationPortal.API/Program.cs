@@ -18,9 +18,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 
-builder.Services.AddDbContext<EducationPortalContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("EducationPortalDbContext")));
 
+
+builder.Services.AddDbContext<EducationPortalContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("EducationPortalDbContext"));
+    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+});
 
 
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly()); //automapper
@@ -30,6 +34,11 @@ builder.Services.AddScoped<ICategoryService, CategoryManager>();
 builder.Services.AddScoped<ICategoryDal, EfCategoryDal>();
 builder.Services.AddScoped<IEducationService, EducationManager>();
 builder.Services.AddScoped<IEducationDal, EfEducationDal>();
+builder.Services.AddScoped<IContentService, ContentManager>();
+builder.Services.AddScoped<IContentDal, EfContentDal>();
+
+builder.Services.AddScoped<IEducationUserService, EducationUserManager>();
+builder.Services.AddScoped<IEducationUserDal,EfEducationUserDal>();
 
 
 
@@ -119,6 +128,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowSpecificOrigin");
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();

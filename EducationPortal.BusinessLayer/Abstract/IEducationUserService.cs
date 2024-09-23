@@ -9,5 +9,7 @@ namespace EducationPortal.BusinessLayer.Abstract
 {
     public interface IEducationUserService : IGenericService<EducationUser>
     {
+        EducationUser TIsSaveEducation(int educationId, int participantId);
+
     }
 }

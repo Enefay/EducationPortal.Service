@@ -62,9 +62,11 @@ namespace EducationPortal.API.Controllers
                 return Unauthorized();
 
             var token = await GenerateJwtToken(user);
+            var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault(); 
 
-            return Ok(new { token });
+            return Ok(new { token, user.Id, role });
         }
+
 
         private async Task<string> GenerateJwtToken(AppUser user)
         {

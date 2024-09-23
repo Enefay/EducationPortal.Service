@@ -9,8 +9,8 @@ namespace EducationPortal.EntityLayer.Enums
     public enum ContentType
     {
         Book,
-        Video,
         Article,
-        Presentation
+        Presentation,
+        Video
     }
 }

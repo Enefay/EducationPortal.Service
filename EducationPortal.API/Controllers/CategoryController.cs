@@ -10,7 +10,6 @@ namespace EducationPortal.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Policy = "RequireAdminRole")]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
@@ -21,6 +20,7 @@ namespace EducationPortal.API.Controllers
             _mapper = mapper;
         }
         [HttpGet("CategoryList")]
+        [Authorize]
         public IActionResult CategoryList()
         {
             var value = _mapper.Map<List<ResultCategoryDto>>(_categoryService.TGetListAll());
@@ -32,12 +32,14 @@ namespace EducationPortal.API.Controllers
         }
 
         [HttpPost("CreateCategory")]
+        [Authorize(Policy = "RequireAdminRole")]
         public IActionResult CreateCategory(CreateCategoryDto createCategoryDto)
         {
             var value = _mapper.Map<Category>(createCategoryDto);
             _categoryService.TAdd(value);
             return Ok("Kategori Eklendi");
         }
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpDelete("DeleteCategory")]
         public IActionResult DeleteCategory(int id)
         {
@@ -46,12 +48,14 @@ namespace EducationPortal.API.Controllers
             return Ok("Kategori Silindi");
         }
         [HttpGet("GetCategoryById")]
+        [Authorize(Policy = "RequireAdminRole")]
         public IActionResult GetCategoryById(int id)
         {
             var value = _mapper.Map<GetCategoryDto>(_categoryService.TGetByID(id));
             return Ok(value);
         }
         [HttpPut("UpdateCategory")]
+        [Authorize(Policy = "RequireAdminRole")]
         public IActionResult UpdateCategory(UpdateCategoryDto updateCategoryDto)
         {
             var value = _mapper.Map<Category>(updateCategoryDto);

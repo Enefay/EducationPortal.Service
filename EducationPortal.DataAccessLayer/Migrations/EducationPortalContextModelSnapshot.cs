@@ -191,17 +191,20 @@ namespace EducationPortal.DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("DurationInDays")
+                    b.Property<int>("EducationStatus")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("InstructorId")
                         .HasColumnType("int");
 
-                    b.Property<bool?>("IsConfirm")
-                        .HasColumnType("bit");
-
                     b.Property<int>("Quota")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -225,6 +228,12 @@ namespace EducationPortal.DataAccessLayer.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("EducationId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("JoinRequestStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LeaveRequestStatus")
                         .HasColumnType("int");
 
                     b.Property<int>("ParticipantId")

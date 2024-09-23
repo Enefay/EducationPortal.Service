@@ -15,7 +15,6 @@ namespace EducationPortal.DtoLayer.EducationDto
         public int CategoryId { get; set; }
         public int InstructorId { get; set; }
         public int Quota { get; set; }
-        public bool IsConfirm { get; set; }
 
         public decimal Cost { get; set; }
         public DateTime StartDate { get; set; }

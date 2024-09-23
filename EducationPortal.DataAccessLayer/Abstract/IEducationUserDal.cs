@@ -9,5 +9,6 @@ namespace EducationPortal.DataAccessLayer.Abstract
 {
     public interface IEducationUserDal : IGenericDal<EducationUser>
     {
+        EducationUser IsSaveEducation(int educationId, int participantId);
     }
 }

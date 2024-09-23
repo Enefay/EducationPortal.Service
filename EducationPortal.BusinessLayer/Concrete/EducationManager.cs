@@ -18,6 +18,21 @@ namespace EducationPortal.BusinessLayer.Concrete
             _educationDal = educationDal;
         }
 
+        public List<Education> TGetStudentComingEducations(int studentId)
+        {
+            return _educationDal.GetStudentComingEducations(studentId);
+        }
+
+        public List<Education> TGetStudentCompletedEducations(int studentId)
+        {
+            return _educationDal.GetStudentCompletedEducations(studentId);
+        }
+
+        public List<Education> TGetStudentContinueEducations(int studentId)
+        {
+            return _educationDal.GetStudentContinueEducations(studentId);
+        }
+
         public void TAdd(Education entity)
         {
             _educationDal.Add(entity);
@@ -28,9 +43,34 @@ namespace EducationPortal.BusinessLayer.Concrete
             _educationDal.Delete(entity);
         }
 
+        public List<Education> TEducationsRoleAndUserList(string role, int id)
+        {
+            if (role == "Admin")
+            {
+                return _educationDal.GetEducationsAdmin();
+            }
+            else if (role == "Student")
+            {
+                return _educationDal.GetEducationsStudent(id);
+            }
+            else if (role == "Teacher")
+            {
+                return _educationDal.GetEducationsTeacher(id);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public Education TGetByID(int id)
         {
             return _educationDal.GetByID(id);
+        }
+
+        public Education TGetByIdDetail(int id)
+        {
+            return _educationDal.GetByIdDetail(id);
         }
 
         public List<Education> TGetEvaluateEducationList()
@@ -56,6 +96,21 @@ namespace EducationPortal.BusinessLayer.Concrete
         public void TUpdate(Education entity)
         {
             _educationDal.Update(entity);
+        }
+
+        public List<Education> TGetTeacherCompletedEducations(int teacherId)
+        {
+            return _educationDal.GetTeacherCompletedEducations(teacherId);
+        }
+
+        public List<Education> TGetTeacherContinueEducations(int teacherId)
+        {
+            return _educationDal.GetTeacherContinueEducations(teacherId);
+        }
+
+        public List<Education> TGetTeacherComingEducations(int teacherId)
+        {
+            return _educationDal.GetTeacherComingEducations(teacherId);
         }
     }
 }

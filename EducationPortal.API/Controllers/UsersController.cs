@@ -63,21 +63,6 @@ namespace EducationPortal.API.Controllers
             user.Name = updateUserDto.Name;
             user.Surname = updateUserDto.Surname;
 
-            //// Şifre güncelleme
-            //if (!string.IsNullOrEmpty(updateUserDto.Password))
-            //{
-            //    var removePasswordResult = await _userManager.RemovePasswordAsync(user);
-            //    if (!removePasswordResult.Succeeded)
-            //    {
-            //        return BadRequest(removePasswordResult.Errors);
-            //    }
-
-            //    var addPasswordResult = await _userManager.AddPasswordAsync(user, updateUserDto.Password);
-            //    if (!addPasswordResult.Succeeded)
-            //    {
-            //        return BadRequest(addPasswordResult.Errors);
-            //    }
-            //}
 
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
@@ -126,11 +111,11 @@ namespace EducationPortal.API.Controllers
             }
             var roles = await _userManager.GetRolesAsync(user);
             var rolesString = string.Join(", ", roles);
-
             if (rolesString == "Student")
             {
-                return BadRequest("Sadece personellere erişebilirsiniz.");
+                return StatusCode(403, "Sadece personellere erişebilirsiniz.");
             }
+
             return Ok(new
             {
                 user.Id,
