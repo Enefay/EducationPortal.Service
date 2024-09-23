@@ -48,6 +48,19 @@ namespace EducationPortal.API.Controllers
 
         public IActionResult JoinEducation(int educationId)
         {
+
+            int kota = _context.EducationUsers
+                .Where(x => x.EducationId == educationId &&
+                            (x.JoinRequestStatus == RequestStatus.Pending ||
+                             x.JoinRequestStatus == RequestStatus.Approved))
+                .Count();
+
+            Education education = _educationService.TGetByID(educationId);
+            if (education.Quota >= kota)
+            {
+                return BadRequest("Maksimum kapasiteye ulaşıldı.");
+
+            }
             //var education = _educationService.TGetByIdDetail(educationId);
             var userId = Convert.ToInt32(User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value);
             if (userId == null)

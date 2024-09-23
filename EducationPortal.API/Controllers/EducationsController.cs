@@ -188,7 +188,6 @@ namespace EducationPortal.API.Controllers
                 entityDetail.Type = unc.Type;
                 entityDetail.FilePath = unc.FilePath;
                 entityDetail.EducationId = unc.EducationId;
-                // Update entity using service
                 _contentService.TUpdate(entityDetail);
             }
 
