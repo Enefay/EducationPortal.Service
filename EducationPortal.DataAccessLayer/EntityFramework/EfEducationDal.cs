@@ -48,7 +48,8 @@ namespace EducationPortal.DataAccessLayer.EntityFramework
                 {
                     Id = x.Id,
                     FilePath = x.FilePath,
-                    Type = x.Type
+                    Type = x.Type,
+                    EducationId = x.EducationId
                 }).ToList(),
                 EducationUsers = x.EducationUsers == null ? null : x.EducationUsers.Select(x=> new EducationUser
                 {

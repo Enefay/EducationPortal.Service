@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using EducationPortal.BusinessLayer.Abstract;
+using EducationPortal.DtoLayer.CategoryDto;
 using EducationPortal.DtoLayer.EducationDto;
 using EducationPortal.DtoLayer.UserDto;
 using EducationPortal.EntityLayer.Entities;
@@ -98,7 +99,6 @@ namespace EducationPortal.API.Controllers
 
             return Ok("Eğitim başarıyla eklendi.");
         }
-
         [HttpPost("UpdateEducation")]
         public async Task<IActionResult> UpdateEducation([FromForm] UpdateEducationDto updateEducationDto)
         {
@@ -113,21 +113,39 @@ namespace EducationPortal.API.Controllers
             }
 
             // Mevcut Education kaydını getir
-            var education =  _educationService.TGetByIdDetail(updateEducationDto.Id);
+            var education = _educationService.TGetByIdDetail(updateEducationDto.Id);
+            education.Category = null;
+            education.Instructor = null;
+            education.EducationUsers = null;
+
             if (education == null)
             {
                 return NotFound("Eğitim bulunamadı.");
             }
 
-           
+            // Eğitim detaylarını güncelle
+            education.Title = updateEducationDto.Title;
+            education.Description = updateEducationDto.Description;
+            education.CategoryId = updateEducationDto.CategoryId;
+            education.Quota = updateEducationDto.Quota;
+            education.Cost = updateEducationDto.Cost;
+            education.StartDate = updateEducationDto.StartDate;
+            education.EndDate = updateEducationDto.EndDate;
 
             // Her içerik için güncelleme işlemi
+
+            foreach (var item in updateEducationDto.Contents)
+            {
+                item.EducationId = updateEducationDto.Id;
+            }
+
+
             foreach (var contentDto in updateEducationDto.Contents)
             {
                 var content = _contentService.TGetByID(contentDto.Id);
 
-
-                if (contentDto.File != null && contentDto.File.Length > 0)
+                // Eğer bir dosya yüklenmişse
+                if (content != null && contentDto.File != null && contentDto.File.Length > 0)
                 {
                     // Dosya kaydedilecek dizin
                     var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "files");
@@ -144,37 +162,58 @@ namespace EducationPortal.API.Controllers
                     }
 
                     // Yeni dosyayı kaydet
-                    var uniqueFileName = contentDto.File.FileName;
+                    var uniqueFileName =  contentDto.File.FileName ;
                     var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
                         await contentDto.File.CopyToAsync(fileStream);
                     }
+
                     content.FilePath = Path.Combine("files", uniqueFileName);
                 }
 
-                // Eğer yeni bir content ise ekle
-                if (content == null)
-                {
-                    content = new Content
-                    {
-                        FilePath = contentDto.FilePath,
-                        Type = contentDto.Type,
-                        EducationId = updateEducationDto.Id
-                    };
-                    education.Contents.Add(content);
-                }
-                else
-                {
-                    // Mevcut content'i güncelle
-                    content.Type = contentDto.Type;
-                }
             }
 
+            var educationContentsList = education.Contents.ToList();
+
+            var addedContents = updateEducationDto.Contents.Where(x => !educationContentsList.Select(y => y.Id).Contains(x.Id));
+            var deletedContents = educationContentsList.Where(x => !updateEducationDto.Contents.Select(y => y.Id).Contains(x.Id)).ToList();
+            var unchangeContents = updateEducationDto.Contents.Where(x => educationContentsList.Select(y => y.Id).Contains(x.Id));
+
+            foreach (var unc in unchangeContents)
+            {
+                var index = educationContentsList.Select(x => x.Id).ToList().IndexOf(unc.Id);
+                var entityDetail = educationContentsList[index];
+                entityDetail.Type = unc.Type;
+                entityDetail.FilePath = unc.FilePath;
+                entityDetail.EducationId = unc.EducationId;
+                // Update entity using service
+                _contentService.TUpdate(entityDetail);
+            }
+
+            // Delete contents
+            deletedContents.ForEach(x =>
+            {
+                _contentService.TDelete(x);
+            });
+
+            // Add new contents
+            addedContents.ToList().ForEach(x =>
+            {
+                var value = _mapper.Map<Content>(x);
+                _contentService.TAdd(value);
+            });
+
+            education.Contents = null;
+
+
+            // Eğitim ve içerikleri güncelle
             _educationService.TUpdate(education);
 
             return Ok("Eğitim başarıyla güncellendi.");
         }
+
 
 
 

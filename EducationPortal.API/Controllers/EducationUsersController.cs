@@ -30,22 +30,6 @@ namespace EducationPortal.API.Controllers
             _context = context;
         }
 
-
-        [HttpGet("Durum")]
-        public IActionResult Durum()
-        {
-            //Katılma talebi
-            //katılma talebini ilk defa olusturmus olabilir
-            //katılma talebi beklemede olmus olabilir.
-            //zaten katılmıs olabilir.
-            //!! katıldığı an çıkma talebi NoAction olmalı.
-
-
-            //çıkma talebi
-
-            return Ok();
-        }
-
         [HttpGet("GetEducationUserById")]
         public IActionResult GetEducationUserById(int educationId)
         {
@@ -130,8 +114,10 @@ namespace EducationPortal.API.Controllers
         [HttpGet("GetPendingRequests")]
         public IActionResult GetPendingRequests()
         {
+            var userId = Convert.ToInt32(User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value);
+
             var requests = _context.EducationUsers
-                .Where(eu => eu.JoinRequestStatus == RequestStatus.Pending || eu.LeaveRequestStatus == RequestStatus.Pending)
+                .Where(eu => (eu.JoinRequestStatus == RequestStatus.Pending || eu.LeaveRequestStatus == RequestStatus.Pending) && eu.Education.InstructorId == userId)
                 .Select(eu => new
                 {
                     eu.Id,
@@ -156,16 +142,31 @@ namespace EducationPortal.API.Controllers
                 if (educationUserRequestDto.Approve)
                 {
                     if (request.JoinRequestStatus == RequestStatus.Pending)
+                    {
                         request.JoinRequestStatus = RequestStatus.Approved;
-                    if (request.LeaveRequestStatus == RequestStatus.Pending)
+                        request.LeaveRequestStatus = RequestStatus.NoAction;
+                    }
+
+                    else if (request.LeaveRequestStatus == RequestStatus.Pending)
+                    {
                         request.LeaveRequestStatus = RequestStatus.Approved;
+                        request.JoinRequestStatus = RequestStatus.NoAction;
+                    }
+
+
                 }
                 else
                 {
                     if (request.JoinRequestStatus == RequestStatus.Pending)
-                        request.JoinRequestStatus = RequestStatus.Rejected;
-                    if (request.LeaveRequestStatus == RequestStatus.Pending)
-                        request.LeaveRequestStatus = RequestStatus.Rejected;
+                    {
+                        request.JoinRequestStatus = RequestStatus.NoAction;
+                        request.LeaveRequestStatus = RequestStatus.NoAction;
+                    }
+                    else if (request.LeaveRequestStatus == RequestStatus.Pending)
+                    {
+                        request.LeaveRequestStatus = RequestStatus.NoAction;
+                        request.JoinRequestStatus = RequestStatus.Approved;
+                    }
                 }
                 _educationUserService.TUpdate(request);
             }
